@@ -1,0 +1,1305 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Analyse & Visualisation de Données</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Instrument+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #f5f0e8;
+  --bg2: #ede8df;
+  --dark: #0f0e0b;
+  --card: #ffffff;
+  --orange: #ff5c00;
+  --orange2: #ff8840;
+  --blue: #1a3fff;
+  --teal: #00b8a9;
+  --yellow: #ffd600;
+  --red: #e8003d;
+  --purple: #7c3aed;
+  --text: #1a1814;
+  --muted: #7a7268;
+  --border: #d9d3c8;
+  --display: 'Bebas Neue', sans-serif;
+  --body: 'Instrument Sans', sans-serif;
+  --mono: 'JetBrains Mono', monospace;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: var(--body);
+  background: var(--bg);
+  color: var(--text);
+  overflow-x: hidden;
+}
+
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: var(--bg2); }
+::-webkit-scrollbar-thumb { background: var(--orange); border-radius: 3px; }
+
+/* ===== NAV ===== */
+nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 200;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 1rem 3rem;
+  background: var(--dark);
+  border-bottom: 3px solid var(--orange);
+}
+
+.nav-logo {
+  font-family: var(--display);
+  font-size: 1.3rem;
+  letter-spacing: 0.05em;
+  color: var(--yellow);
+}
+
+.nav-links { display: flex; gap: 2rem; list-style: none; }
+.nav-links a {
+  text-decoration: none;
+  color: rgba(255,255,255,0.5);
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  transition: color 0.2s;
+}
+.nav-links a:hover { color: var(--orange); }
+
+/* ===== HERO ===== */
+.hero {
+  background: var(--dark);
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  padding-top: 68px;
+  overflow: hidden;
+  position: relative;
+}
+
+.hero-left {
+  padding: 5rem 3rem 4rem 4rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  position: relative;
+  z-index: 1;
+}
+
+/* Horizontal rules deco */
+.hero-left::before {
+  content: '';
+  position: absolute;
+  top: 5rem; left: 4rem; right: 0;
+  height: 1px;
+  background: rgba(255,255,255,0.06);
+}
+
+.hero-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  color: var(--orange);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  margin-bottom: 2rem;
+}
+
+.hero-tag::before {
+  content: '';
+  width: 30px; height: 2px;
+  background: var(--orange);
+}
+
+.hero h1 {
+  font-family: var(--display);
+  font-size: clamp(4.5rem, 8vw, 8rem);
+  line-height: 0.92;
+  letter-spacing: 0.02em;
+  color: white;
+  margin-bottom: 2rem;
+}
+
+.hero h1 .accent {
+  color: var(--orange);
+  display: block;
+}
+
+.hero h1 .sub {
+  font-size: 0.55em;
+  color: rgba(255,255,255,0.35);
+  display: block;
+  letter-spacing: 0.08em;
+}
+
+.hero-desc {
+  font-size: 1rem;
+  color: rgba(255,255,255,0.5);
+  line-height: 1.8;
+  max-width: 400px;
+  font-weight: 400;
+  margin-bottom: 3rem;
+}
+
+.hero-badges {
+  display: flex; gap: 0.6rem; flex-wrap: wrap;
+}
+
+.badge {
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  padding: 0.3rem 0.8rem;
+  border-radius: 3px;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+}
+
+.badge-orange { background: rgba(255,92,0,0.2); color: var(--orange); border: 1px solid rgba(255,92,0,0.3); }
+.badge-blue { background: rgba(26,63,255,0.2); color: #6699ff; border: 1px solid rgba(26,63,255,0.3); }
+.badge-teal { background: rgba(0,184,169,0.2); color: var(--teal); border: 1px solid rgba(0,184,169,0.3); }
+.badge-yellow { background: rgba(255,214,0,0.15); color: var(--yellow); border: 1px solid rgba(255,214,0,0.3); }
+
+/* Hero right — live mini dashboard */
+.hero-right {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 5rem 3rem 4rem 2rem;
+  gap: 1rem;
+}
+
+.mini-chart-card {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 12px;
+  padding: 1.2rem 1.5rem;
+  transition: border-color 0.3s;
+}
+
+.mini-chart-card:hover { border-color: rgba(255,92,0,0.4); }
+
+.mcc-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+.mcc-title {
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.4);
+}
+
+.mcc-val {
+  font-family: var(--mono);
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: white;
+}
+
+.mcc-change {
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  padding: 0.2rem 0.5rem;
+  border-radius: 3px;
+}
+
+.up { color: #4ade80; background: rgba(74,222,128,0.12); }
+.down { color: #f87171; background: rgba(248,113,113,0.12); }
+
+/* Bar chart mini */
+.mini-bars {
+  display: flex;
+  align-items: flex-end;
+  gap: 4px;
+  height: 50px;
+}
+
+.mini-bar {
+  flex: 1;
+  border-radius: 2px 2px 0 0;
+  transition: opacity 0.3s;
+  animation: barGrow 1s ease both;
+}
+
+@keyframes barGrow {
+  from { transform: scaleY(0); transform-origin: bottom; }
+  to { transform: scaleY(1); transform-origin: bottom; }
+}
+
+/* Donut mini */
+.mini-donut-row {
+  display: flex; align-items: center; gap: 1.5rem;
+}
+
+.mini-donut {
+  width: 60px; height: 60px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.donut-legend { display: flex; flex-direction: column; gap: 0.4rem; }
+.dl-item { display: flex; align-items: center; gap: 0.4rem; font-size: 0.72rem; color: rgba(255,255,255,0.5); }
+.dl-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+
+/* Line sparkline */
+.sparkline-wrap { height: 50px; position: relative; overflow: hidden; }
+.sparkline-wrap svg { width: 100%; height: 100%; }
+
+/* ===== SECTIONS ===== */
+section {
+  padding: 6rem 4rem;
+  max-width: 1300px;
+  margin: 0 auto;
+}
+
+.full-section {
+  max-width: 100%;
+  padding: 6rem 0;
+}
+
+.full-section .inner { max-width: 1300px; margin: 0 auto; padding: 0 4rem; }
+
+.sec-eyebrow {
+  display: flex; align-items: center; gap: 0.8rem;
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--orange);
+  font-weight: 500;
+  margin-bottom: 1rem;
+}
+
+.sec-eyebrow .num {
+  background: var(--orange);
+  color: white;
+  padding: 0.1rem 0.4rem;
+  border-radius: 3px;
+  font-size: 0.6rem;
+}
+
+.sec-title {
+  font-family: var(--display);
+  font-size: clamp(3rem, 5vw, 5rem);
+  line-height: 0.95;
+  letter-spacing: 0.03em;
+  margin-bottom: 1.5rem;
+  color: var(--text);
+}
+
+.sec-title .orange { color: var(--orange); }
+.sec-title .blue { color: var(--blue); }
+
+.sec-text {
+  font-size: 1.05rem;
+  color: var(--muted);
+  line-height: 1.8;
+  max-width: 580px;
+  font-weight: 400;
+}
+
+/* ===== DEFINITION — 2 col ===== */
+.def-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 3rem;
+  margin-top: 4rem;
+  align-items: start;
+}
+
+.def-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  overflow: hidden;
+  transition: box-shadow 0.3s, transform 0.3s;
+}
+
+.def-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 20px 50px rgba(0,0,0,0.1);
+}
+
+.def-card-top {
+  padding: 2rem 2rem 1.5rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.def-card-icon {
+  font-size: 2.5rem;
+  margin-bottom: 1rem;
+}
+
+.def-card h3 {
+  font-family: var(--display);
+  font-size: 2rem;
+  letter-spacing: 0.03em;
+  margin-bottom: 0.6rem;
+}
+
+.def-card p { font-size: 0.92rem; color: var(--muted); line-height: 1.75; }
+
+.def-card-steps {
+  padding: 1.5rem 2rem;
+  display: flex; flex-direction: column; gap: 0.6rem;
+}
+
+.def-step {
+  display: flex; align-items: center; gap: 0.8rem;
+  font-size: 0.88rem;
+  font-weight: 500;
+}
+
+.def-step-num {
+  width: 24px; height: 24px;
+  border-radius: 50%;
+  background: var(--orange);
+  color: white;
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+
+.def-step-num.blue { background: var(--blue); }
+.def-step-num.teal { background: var(--teal); }
+
+/* ===== EXAMPLE CALLOUT ===== */
+.example-box {
+  background: var(--dark);
+  color: white;
+  border-radius: 16px;
+  padding: 2.5rem 3rem;
+  margin-top: 2.5rem;
+  display: flex;
+  gap: 3rem;
+  align-items: flex-start;
+}
+
+.example-box-label {
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  color: var(--orange);
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  margin-bottom: 0.8rem;
+}
+
+.example-box h4 {
+  font-family: var(--display);
+  font-size: 1.6rem;
+  letter-spacing: 0.04em;
+  margin-bottom: 1rem;
+}
+
+.example-questions {
+  display: flex; flex-direction: column; gap: 0.5rem;
+}
+
+.eq {
+  display: flex; align-items: center; gap: 0.8rem;
+  font-size: 0.88rem;
+  color: rgba(255,255,255,0.6);
+}
+
+.eq::before {
+  content: '→';
+  color: var(--orange);
+  font-family: var(--mono);
+  flex-shrink: 0;
+}
+
+.example-chart-preview {
+  flex: 1;
+  min-width: 200px;
+}
+
+/* ===== CHARTS SECTION ===== */
+.charts-bg {
+  background: var(--bg2);
+  border-top: 2px solid var(--border);
+  border-bottom: 2px solid var(--border);
+}
+
+.charts-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.5rem;
+  margin-top: 3.5rem;
+}
+
+.chart-type-card {
+  background: var(--card);
+  border: 2px solid var(--border);
+  border-radius: 14px;
+  padding: 1.8rem 1.5rem;
+  text-align: center;
+  transition: border-color 0.3s, transform 0.3s, box-shadow 0.3s;
+  cursor: default;
+}
+
+.chart-type-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 16px 40px rgba(0,0,0,0.1);
+}
+
+.chart-type-card:nth-child(1):hover { border-color: var(--orange); }
+.chart-type-card:nth-child(2):hover { border-color: var(--blue); }
+.chart-type-card:nth-child(3):hover { border-color: var(--teal); }
+.chart-type-card:nth-child(4):hover { border-color: var(--purple); }
+
+.chart-viz { height: 80px; display: flex; align-items: flex-end; justify-content: center; margin-bottom: 1rem; }
+
+.chart-type-card h4 { font-weight: 700; font-size: 0.95rem; margin-bottom: 0.4rem; }
+.chart-type-card p { font-size: 0.8rem; color: var(--muted); line-height: 1.5; }
+
+/* Bar chart illustration */
+.illus-bars { display: flex; align-items: flex-end; gap: 5px; height: 70px; }
+.ib { border-radius: 3px 3px 0 0; }
+
+/* Line chart illustration */
+.illus-line-wrap { width: 100%; height: 70px; }
+
+/* Donut illustration */
+.illus-donut { width: 70px; height: 70px; border-radius: 50%; }
+
+/* Table illustration */
+.illus-table { width: 100%; }
+.it-row { display: flex; gap: 2px; margin-bottom: 2px; }
+.it-cell { flex: 1; height: 10px; border-radius: 2px; background: rgba(124,58,237,0.2); }
+.it-cell.head { background: var(--purple); }
+
+/* ===== IMPORTANCE ===== */
+.importance-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 1rem;
+  margin-top: 3.5rem;
+}
+
+.imp-card {
+  padding: 1.8rem 1.4rem;
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  background: var(--card);
+  transition: transform 0.3s, box-shadow 0.3s;
+  position: relative;
+  overflow: hidden;
+}
+
+.imp-card::after {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 3px;
+}
+
+.imp-card:nth-child(1)::after { background: var(--orange); }
+.imp-card:nth-child(2)::after { background: var(--blue); }
+.imp-card:nth-child(3)::after { background: var(--teal); }
+.imp-card:nth-child(4)::after { background: var(--yellow); }
+.imp-card:nth-child(5)::after { background: var(--red); }
+
+.imp-card:hover { transform: translateY(-4px); box-shadow: 0 12px 30px rgba(0,0,0,0.08); }
+
+.imp-num {
+  font-family: var(--display);
+  font-size: 3.5rem;
+  line-height: 1;
+  opacity: 0.07;
+  position: absolute;
+  top: 0.5rem; right: 0.8rem;
+}
+
+.imp-icon { font-size: 1.8rem; margin-bottom: 1rem; }
+
+.imp-card h3 { font-weight: 700; font-size: 0.9rem; margin-bottom: 0.4rem; line-height: 1.3; }
+.imp-card p { font-size: 0.8rem; color: var(--muted); line-height: 1.5; }
+
+/* ===== TOOLS ===== */
+.tools-layout {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: 3rem;
+  margin-top: 3.5rem;
+}
+
+.tools-categories { display: flex; flex-direction: column; gap: 1rem; }
+
+.tool-cat {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 1.4rem 1.6rem;
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s;
+  border-left: 4px solid transparent;
+}
+
+.tool-cat.active,
+.tool-cat:hover {
+  border-left-color: var(--orange);
+  background: rgba(255,92,0,0.03);
+}
+
+.tool-cat h4 { font-weight: 700; font-size: 0.9rem; margin-bottom: 0.2rem; }
+.tool-cat p { font-size: 0.78rem; color: var(--muted); }
+
+.tools-detail {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.tools-detail-header {
+  background: var(--dark);
+  padding: 1.5rem 2rem;
+  display: flex; align-items: center; justify-content: space-between;
+}
+
+.tools-detail-title {
+  font-family: var(--display);
+  font-size: 1.5rem;
+  letter-spacing: 0.04em;
+  color: white;
+}
+
+.tools-grid-inner {
+  padding: 2rem;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+}
+
+.tool-item {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 1.2rem;
+  text-align: center;
+  transition: border-color 0.2s, transform 0.2s;
+}
+
+.tool-item:hover { border-color: var(--orange); transform: translateY(-2px); }
+
+.tool-item-icon { font-size: 2rem; margin-bottom: 0.5rem; }
+.tool-item h5 { font-weight: 700; font-size: 0.85rem; margin-bottom: 0.2rem; }
+.tool-item p { font-size: 0.72rem; color: var(--muted); }
+
+.tool-item-tag {
+  display: inline-block;
+  margin-top: 0.4rem;
+  font-family: var(--mono);
+  font-size: 0.58rem;
+  padding: 0.15rem 0.4rem;
+  border-radius: 3px;
+  background: rgba(255,92,0,0.1);
+  color: var(--orange);
+}
+
+/* ===== LIVE CHART ===== */
+.live-chart-section {
+  background: var(--dark);
+  color: white;
+}
+
+.live-chart-section .inner { padding: 5rem 4rem; }
+
+.live-chart-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+  margin-top: 3rem;
+}
+
+.live-chart-card {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.lcc-header {
+  padding: 1.2rem 1.5rem;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  display: flex; align-items: center; justify-content: space-between;
+}
+
+.lcc-title { font-size: 0.78rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: rgba(255,255,255,0.4); }
+
+.lcc-body { padding: 1.5rem; }
+
+canvas { max-width: 100%; }
+
+/* ===== SUMMARY ===== */
+.summary-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2px;
+  margin-top: 3.5rem;
+  border-radius: 16px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+}
+
+.sum-card {
+  background: var(--card);
+  padding: 3rem 2rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.sum-card:hover { background: rgba(255,92,0,0.03); }
+
+.sum-card-bg {
+  font-family: var(--display);
+  font-size: 8rem;
+  position: absolute;
+  top: -1rem; right: -1rem;
+  opacity: 0.04;
+  line-height: 1;
+  color: var(--orange);
+}
+
+.sum-card h3 {
+  font-family: var(--display);
+  font-size: 1.6rem;
+  letter-spacing: 0.04em;
+  margin-bottom: 0.8rem;
+}
+
+.sum-card p { font-size: 0.92rem; color: var(--muted); line-height: 1.7; }
+
+/* ===== FOOTER ===== */
+footer {
+  background: var(--dark);
+  padding: 2rem 4rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-top: 3px solid var(--orange);
+}
+
+.footer-brand {
+  font-family: var(--display);
+  font-size: 1.4rem;
+  letter-spacing: 0.05em;
+  color: white;
+}
+
+.footer-brand span { color: var(--orange); }
+
+footer p { font-size: 0.78rem; color: rgba(255,255,255,0.3); }
+
+/* ===== SCROLL REVEAL ===== */
+.reveal { opacity: 0; transform: translateY(28px); transition: opacity 0.6s ease, transform 0.6s ease; }
+.reveal.visible { opacity: 1; transform: none; }
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 1024px) {
+  .hero { grid-template-columns: 1fr; }
+  .hero-right { display: none; }
+  .def-grid, .live-chart-grid { grid-template-columns: 1fr; }
+  .charts-grid { grid-template-columns: repeat(2, 1fr); }
+  .importance-grid { grid-template-columns: repeat(2, 1fr); }
+  .tools-layout { grid-template-columns: 1fr; }
+  .tools-grid-inner { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 768px) {
+  nav { padding: 1rem 1.5rem; }
+  .nav-links { display: none; }
+  section { padding: 4rem 1.5rem; }
+  .full-section .inner { padding: 0 1.5rem; }
+  .charts-grid, .importance-grid, .summary-grid { grid-template-columns: 1fr; }
+  .example-box { flex-direction: column; }
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">DATA & VIZ</div>
+  <ul class="nav-links">
+    <li><a href="#analyse">Analyse</a></li>
+    <li><a href="#visualisation">Visualisation</a></li>
+    <li><a href="#importance">Importance</a></li>
+    <li><a href="#outils">Outils</a></li>
+    <li><a href="#live">Graphiques Live</a></li>
+    <li><a href="#resume">Résumé</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-left">
+    <div class="hero-tag">Présentation — Data Science</div>
+    <h1>
+      ANALYSE<br>
+      <span class="accent">& VISU-</span>
+      <span class="accent">ALISATION</span>
+      <span class="sub">DE DONNÉES</span>
+    </h1>
+    <p class="hero-desc">Comment transformer des données brutes en informations visuelles claires, utiles et actionnables pour les développeurs et les entreprises.</p>
+    <div class="hero-badges">
+      <span class="badge badge-orange">Python</span>
+      <span class="badge badge-blue">JavaScript</span>
+      <span class="badge badge-teal">SQL</span>
+      <span class="badge badge-yellow">Power BI</span>
+    </div>
+  </div>
+
+  <div class="hero-right">
+    <!-- Mini card 1: bar chart -->
+    <div class="mini-chart-card">
+      <div class="mcc-header">
+        <span class="mcc-title">Ventes mensuelles</span>
+        <span class="mcc-change up">↑ +18.4%</span>
+      </div>
+      <div class="mini-bars" id="heroBars"></div>
+    </div>
+
+    <!-- Mini card 2: KPI -->
+    <div class="mini-chart-card">
+      <div class="mcc-header">
+        <span class="mcc-title">Revenus totaux</span>
+        <span class="mcc-change up">↑ +7.2%</span>
+      </div>
+      <div class="mcc-val">€ 284,920</div>
+      <div class="sparkline-wrap" style="margin-top:0.8rem">
+        <svg id="sparklineSVG" viewBox="0 0 200 50" preserveAspectRatio="none"></svg>
+      </div>
+    </div>
+
+    <!-- Mini card 3: donut -->
+    <div class="mini-chart-card">
+      <div class="mcc-header">
+        <span class="mcc-title">Répartition produits</span>
+        <span class="mcc-change down">↓ -2.1%</span>
+      </div>
+      <div class="mini-donut-row">
+        <canvas id="heroDonut" width="70" height="70"></canvas>
+        <div class="donut-legend">
+          <div class="dl-item"><div class="dl-dot" style="background:#ff5c00"></div>Électronique 42%</div>
+          <div class="dl-item"><div class="dl-dot" style="background:#1a3fff"></div>Mode 31%</div>
+          <div class="dl-item"><div class="dl-dot" style="background:#00b8a9"></div>Maison 27%</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ANALYSE -->
+<section id="analyse">
+  <div class="reveal">
+    <div class="sec-eyebrow"><span class="num">01</span> Définition</div>
+    <h2 class="sec-title">L'ANALYSE<br><span class="orange">DE DONNÉES</span></h2>
+    <p class="sec-text">C'est le processus qui consiste à collecter, nettoyer, organiser et étudier des données pour en tirer des conclusions utiles. En résumé : transformer des données brutes en informations compréhensibles.</p>
+  </div>
+
+  <div class="def-grid reveal">
+    <div class="def-card">
+      <div class="def-card-top">
+        <div class="def-card-icon">📊</div>
+        <h3>LES 5 ÉTAPES</h3>
+        <p>L'analyse de données suit un processus structuré pour transformer le chaos en clarté.</p>
+      </div>
+      <div class="def-card-steps">
+        <div class="def-step"><div class="def-step-num">1</div>Collecter les données</div>
+        <div class="def-step"><div class="def-step-num">2</div>Nettoyer et filtrer</div>
+        <div class="def-step"><div class="def-step-num">3</div>Organiser et structurer</div>
+        <div class="def-step"><div class="def-step-num blue">4</div>Étudier et analyser</div>
+        <div class="def-step"><div class="def-step-num teal">5</div>Tirer des conclusions</div>
+      </div>
+    </div>
+
+    <div>
+      <div class="example-box">
+        <div>
+          <div class="example-box-label">// Exemple concret</div>
+          <h4>APPLICATION DE VENTE</h4>
+          <div class="example-questions">
+            <div class="eq">Combien de produits ont été vendus ?</div>
+            <div class="eq">Quel produit est le plus populaire ?</div>
+            <div class="eq">Quel mois a généré le plus de revenus ?</div>
+          </div>
+          <div style="margin-top:1.5rem; font-size:0.82rem; color:rgba(255,255,255,0.35); line-height:1.6;">On utilise des requêtes <span style="color:var(--teal); font-family:var(--mono)">SQL</span>, du <span style="color:var(--orange); font-family:var(--mono)">code Python</span> ou des outils spécialisés pour répondre à ces questions.</div>
+        </div>
+        <div class="example-chart-preview">
+          <canvas id="exampleBar" width="200" height="160"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- VISUALISATION -->
+<div class="full-section charts-bg" id="visualisation">
+<div class="inner">
+  <div class="reveal">
+    <div class="sec-eyebrow"><span class="num">02</span> Concept</div>
+    <h2 class="sec-title">LA VISUALI-<br><span class="blue">SATION</span></h2>
+    <p class="sec-text">Au lieu de lire un tableau compliqué, on représente les données sous forme graphique pour les comprendre instantanément. C'est rendre les données visuelles et faciles à comprendre.</p>
+  </div>
+  <div class="charts-grid reveal">
+    <!-- Bar -->
+    <div class="chart-type-card">
+      <div class="chart-viz">
+        <div class="illus-bars">
+          <div class="ib" style="height:40%;width:14px;background:var(--orange);border-radius:3px 3px 0 0;"></div>
+          <div class="ib" style="height:70%;width:14px;background:var(--orange);border-radius:3px 3px 0 0;"></div>
+          <div class="ib" style="height:55%;width:14px;background:var(--orange);border-radius:3px 3px 0 0;opacity:0.6;"></div>
+          <div class="ib" style="height:90%;width:14px;background:var(--orange);border-radius:3px 3px 0 0;"></div>
+          <div class="ib" style="height:65%;width:14px;background:var(--orange);border-radius:3px 3px 0 0;opacity:0.8;"></div>
+          <div class="ib" style="height:80%;width:14px;background:var(--orange);border-radius:3px 3px 0 0;"></div>
+        </div>
+      </div>
+      <h4>Graphique en Barres</h4>
+      <p>Comparer des valeurs entre différentes catégories</p>
+    </div>
+    <!-- Line -->
+    <div class="chart-type-card">
+      <div class="chart-viz">
+        <svg viewBox="0 0 120 70" style="width:100%;height:70px;">
+          <polyline points="0,60 20,45 40,50 60,25 80,30 100,15 120,20" fill="none" stroke="var(--blue)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+          <polyline points="0,60 20,45 40,50 60,25 80,30 100,15 120,20 120,70 0,70" fill="url(#lineGrad)" opacity="0.15"/>
+          <defs><linearGradient id="lineGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="var(--blue)"/><stop offset="100%" stop-color="transparent"/></linearGradient></defs>
+        </svg>
+      </div>
+      <h4>Graphique en Ligne</h4>
+      <p>Montrer l'évolution d'une valeur dans le temps</p>
+    </div>
+    <!-- Donut -->
+    <div class="chart-type-card">
+      <div class="chart-viz" style="justify-content:center;align-items:center;">
+        <div style="width:70px;height:70px;border-radius:50%;background:conic-gradient(var(--teal) 0% 42%, var(--blue) 42% 73%, var(--yellow) 73% 100%);position:relative;">
+          <div style="position:absolute;inset:18px;border-radius:50%;background:var(--card);"></div>
+        </div>
+      </div>
+      <h4>Diagramme Circulaire</h4>
+      <p>Représenter des proportions et répartitions</p>
+    </div>
+    <!-- Dashboard -->
+    <div class="chart-type-card">
+      <div class="chart-viz" style="flex-direction:column;justify-content:center;gap:4px;align-items:stretch;padding:0 10px;">
+        <div class="illus-table">
+          <div class="it-row"><div class="it-cell head"></div><div class="it-cell head"></div><div class="it-cell head"></div></div>
+          <div class="it-row"><div class="it-cell"></div><div class="it-cell"></div><div class="it-cell"></div></div>
+          <div class="it-row"><div class="it-cell"></div><div class="it-cell"></div><div class="it-cell"></div></div>
+          <div class="it-row"><div class="it-cell"></div><div class="it-cell"></div><div class="it-cell"></div></div>
+        </div>
+      </div>
+      <h4>Dashboard Interactif</h4>
+      <p>Vue d'ensemble complète avec plusieurs indicateurs</p>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- IMPORTANCE -->
+<section id="importance">
+  <div class="reveal">
+    <div class="sec-eyebrow"><span class="num">03</span> Utilité</div>
+    <h2 class="sec-title">POURQUOI<br>C'EST <span class="orange">CRUCIAL</span> ?</h2>
+    <p class="sec-text">L'analyse et la visualisation de données sont devenues indispensables dans tous les secteurs. Voici les 5 raisons principales.</p>
+  </div>
+  <div class="importance-grid reveal">
+    <div class="imp-card">
+      <div class="imp-num">01</div>
+      <div class="imp-icon">🎯</div>
+      <h3>Meilleures décisions</h3>
+      <p>Les entreprises basent leurs choix stratégiques sur des données concrètes, pas des intuitions.</p>
+    </div>
+    <div class="imp-card">
+      <div class="imp-num">02</div>
+      <div class="imp-icon">📈</div>
+      <h3>Comprendre les tendances</h3>
+      <p>Augmentation ou baisse des ventes ? Identifier rapidement les mouvements du marché.</p>
+    </div>
+    <div class="imp-card">
+      <div class="imp-num">03</div>
+      <div class="imp-icon">⚙️</div>
+      <h3>Améliorer les performances</h3>
+      <p>Identifier les points faibles d'un système pour l'optimiser en continu.</p>
+    </div>
+    <div class="imp-card">
+      <div class="imp-num">04</div>
+      <div class="imp-icon">👥</div>
+      <h3>Aider les utilisateurs</h3>
+      <p>Un tableau de bord clair rend une application plus professionnelle et intuitive.</p>
+    </div>
+    <div class="imp-card">
+      <div class="imp-num">05</div>
+      <div class="imp-icon">🔍</div>
+      <h3>Détecter les problèmes</h3>
+      <p>Repérer une baisse anormale d'utilisateurs ou d'activité avant qu'elle devienne critique.</p>
+    </div>
+  </div>
+</section>
+
+<!-- OUTILS -->
+<section id="outils" style="background: var(--bg2); max-width:100%; padding: 6rem 0;">
+<div style="max-width:1300px; margin:0 auto; padding: 0 4rem;">
+  <div class="reveal">
+    <div class="sec-eyebrow"><span class="num">04</span> Écosystème</div>
+    <h2 class="sec-title">LES OUTILS<br><span class="orange">ESSENTIELS</span></h2>
+    <p class="sec-text">De Python à Power BI, en passant par Chart.js, l'écosystème data offre des outils puissants pour chaque besoin.</p>
+  </div>
+  <div class="tools-layout reveal">
+    <div class="tools-categories">
+      <div class="tool-cat active">
+        <h4>🐍 Langages de programmation</h4>
+        <p>Python, JavaScript, SQL</p>
+      </div>
+      <div class="tool-cat">
+        <h4>🗄️ Bases de données</h4>
+        <p>MySQL, MongoDB</p>
+      </div>
+      <div class="tool-cat">
+        <h4>📊 Bibliothèques de viz</h4>
+        <p>Matplotlib, Pandas, Chart.js, D3.js</p>
+      </div>
+      <div class="tool-cat">
+        <h4>🏢 Outils professionnels</h4>
+        <p>Power BI, Tableau, Excel</p>
+      </div>
+    </div>
+    <div class="tools-detail">
+      <div class="tools-detail-header">
+        <span class="tools-detail-title">TOUS LES OUTILS</span>
+        <span style="font-family:var(--mono); font-size:0.65rem; color:rgba(255,255,255,0.3);">10 outils</span>
+      </div>
+      <div class="tools-grid-inner">
+        <div class="tool-item"><div class="tool-item-icon">🐍</div><h5>Python</h5><p>Langage universel data</p><span class="tool-item-tag">Langage</span></div>
+        <div class="tool-item"><div class="tool-item-icon">💻</div><h5>JavaScript</h5><p>Viz interactive web</p><span class="tool-item-tag">Langage</span></div>
+        <div class="tool-item"><div class="tool-item-icon">🗄️</div><h5>SQL</h5><p>Requêtes de données</p><span class="tool-item-tag">Langage</span></div>
+        <div class="tool-item"><div class="tool-item-icon">📊</div><h5>Matplotlib</h5><p>Graphiques Python</p><span class="tool-item-tag">Python lib</span></div>
+        <div class="tool-item"><div class="tool-item-icon">🐼</div><h5>Pandas</h5><p>Manipulation de données</p><span class="tool-item-tag">Python lib</span></div>
+        <div class="tool-item"><div class="tool-item-icon">📈</div><h5>Chart.js</h5><p>Graphiques JS</p><span class="tool-item-tag">JS lib</span></div>
+        <div class="tool-item"><div class="tool-item-icon">🔵</div><h5>D3.js</h5><p>Data-driven documents</p><span class="tool-item-tag">JS lib</span></div>
+        <div class="tool-item"><div class="tool-item-icon">📊</div><h5>Power BI</h5><p>Dashboard Microsoft</p><span class="tool-item-tag">Pro</span></div>
+        <div class="tool-item"><div class="tool-item-icon">🟠</div><h5>Tableau</h5><p>Viz enterprise</p><span class="tool-item-tag">Pro</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- LIVE CHARTS -->
+<div class="full-section live-chart-section" id="live">
+<div class="inner">
+  <div class="reveal">
+    <div class="sec-eyebrow" style="color:var(--orange)"><span class="num" style="background:var(--orange)">05</span> Démonstration</div>
+    <h2 class="sec-title" style="color:white;">GRAPHIQUES<br><span style="color:var(--orange)">EN ACTION</span></h2>
+    <p class="sec-text">Voici des exemples concrets de visualisation de données — exactement ce qu'un dashboard professionnel pourrait montrer.</p>
+  </div>
+  <div class="live-chart-grid reveal">
+    <div class="live-chart-card">
+      <div class="lcc-header">
+        <span class="lcc-title">Ventes par mois — Graphique en barres</span>
+        <span class="mcc-change up">↑ Tendance positive</span>
+      </div>
+      <div class="lcc-body">
+        <canvas id="barChart" height="200"></canvas>
+      </div>
+    </div>
+    <div class="live-chart-card">
+      <div class="lcc-header">
+        <span class="lcc-title">Évolution des utilisateurs — Graphique en ligne</span>
+        <span class="mcc-change up">↑ +34% cette année</span>
+      </div>
+      <div class="lcc-body">
+        <canvas id="lineChart" height="200"></canvas>
+      </div>
+    </div>
+    <div class="live-chart-card">
+      <div class="lcc-header">
+        <span class="lcc-title">Répartition des revenus — Diagramme circulaire</span>
+      </div>
+      <div class="lcc-body" style="display:flex;justify-content:center;">
+        <canvas id="doughnutChart" height="200"></canvas>
+      </div>
+    </div>
+    <div class="live-chart-card">
+      <div class="lcc-header">
+        <span class="lcc-title">Comparaison trimestrielle — Barres groupées</span>
+      </div>
+      <div class="lcc-body">
+        <canvas id="groupedBar" height="200"></canvas>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- RESUME -->
+<section id="resume">
+  <div class="reveal">
+    <div class="sec-eyebrow"><span class="num">06</span> Conclusion</div>
+    <h2 class="sec-title">EN <span class="orange">RÉSUMÉ</span></h2>
+    <p class="sec-text">Trois piliers fondamentaux à retenir pour ton exposé.</p>
+  </div>
+  <div class="summary-grid reveal">
+    <div class="sum-card">
+      <div class="sum-card-bg">01</div>
+      <h3>L'ANALYSE</h3>
+      <p>L'analyse de données permet de comprendre les informations cachées dans les données. C'est transformer le chaos numérique en connaissance actionnable.</p>
+    </div>
+    <div class="sum-card">
+      <div class="sum-card-bg">02</div>
+      <h3>LA VISUALI-SATION</h3>
+      <p>La visualisation permet de représenter ces informations sous forme graphique. Elle rend les données accessibles à tous, pas seulement aux experts.</p>
+    </div>
+    <div class="sum-card">
+      <div class="sum-card-bg">03</div>
+      <h3>L'ESSENTIEL</h3>
+      <p>Elles sont essentielles pour les développeurs et les entreprises modernes. Maîtriser la data, c'est maîtriser la prise de décision du futur.</p>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-brand">DATA <span>&</span> VIZ</div>
+  <p>Analyse et Visualisation de Données — Présentation</p>
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<script>
+/* ====== HERO MINI CHARTS ====== */
+// Hero bars
+const heroBarData = [45, 72, 58, 90, 67, 83, 75, 95, 62, 88, 71, 100];
+const heroColors = ['#ff5c00','#ff5c00','#ff8840','#ff5c00','#ff8840','#ff5c00','#ff8840','#ff5c00','#ff8840','#ff5c00','#ff8840','#ffd600'];
+const heroBarsEl = document.getElementById('heroBars');
+if (heroBarsEl) {
+  heroBarData.forEach((val, i) => {
+    const bar = document.createElement('div');
+    bar.className = 'mini-bar';
+    bar.style.cssText = `height:${val}%; background:${heroColors[i]}; animation-delay:${i*0.05}s;`;
+    heroBarsEl.appendChild(bar);
+  });
+}
+
+// Hero sparkline
+const sparklineSVG = document.getElementById('sparklineSVG');
+if (sparklineSVG) {
+  const pts = [60,52,58,40,45,30,38,28,35,22,30,18];
+  const w = 200, h = 50;
+  const points = pts.map((y, i) => `${i*(w/(pts.length-1))},${y}`).join(' ');
+  sparklineSVG.innerHTML = `
+    <defs><linearGradient id="sg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#ff5c00" stop-opacity="0.3"/>
+      <stop offset="100%" stop-color="#ff5c00" stop-opacity="0"/>
+    </linearGradient></defs>
+    <polyline points="${points} ${w},${h} 0,${h}" fill="url(#sg)"/>
+    <polyline points="${points}" fill="none" stroke="#ff5c00" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  `;
+}
+
+// Hero donut
+const heroDonutCtx = document.getElementById('heroDonut');
+if (heroDonutCtx) {
+  new Chart(heroDonutCtx, {
+    type: 'doughnut',
+    data: {
+      datasets: [{
+        data: [42, 31, 27],
+        backgroundColor: ['#ff5c00','#1a3fff','#00b8a9'],
+        borderWidth: 0,
+      }]
+    },
+    options: { cutout: '65%', plugins: { legend: { display: false }, tooltip: { enabled: false } }, animation: { duration: 1500 } }
+  });
+}
+
+/* ====== EXAMPLE BAR ====== */
+const exBarCtx = document.getElementById('exampleBar');
+if (exBarCtx) {
+  new Chart(exBarCtx, {
+    type: 'bar',
+    data: {
+      labels: ['Jan','Fév','Mar','Avr','Mai','Juin'],
+      datasets: [{
+        data: [4200, 6800, 5500, 9200, 7800, 11000],
+        backgroundColor: 'rgba(255,92,0,0.7)',
+        borderColor: '#ff5c00',
+        borderWidth: 1,
+        borderRadius: 4,
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: { legend: { display: false }, tooltip: { enabled: false } },
+      scales: {
+        x: { ticks: { color: 'rgba(255,255,255,0.4)', font: { size: 9 } }, grid: { color: 'rgba(255,255,255,0.05)' } },
+        y: { ticks: { color: 'rgba(255,255,255,0.4)', font: { size: 9 } }, grid: { color: 'rgba(255,255,255,0.05)' } }
+      }
+    }
+  });
+}
+
+/* ====== LIVE CHARTS ====== */
+Chart.defaults.color = 'rgba(255,255,255,0.4)';
+Chart.defaults.font.family = "'Instrument Sans', sans-serif";
+Chart.defaults.font.size = 11;
+
+const gridColor = 'rgba(255,255,255,0.06)';
+
+// Bar chart
+const barCtx = document.getElementById('barChart');
+if (barCtx) {
+  new Chart(barCtx, {
+    type: 'bar',
+    data: {
+      labels: ['Jan','Fév','Mar','Avr','Mai','Juin','Juil','Août','Sep','Oct','Nov','Déc'],
+      datasets: [{
+        label: 'Ventes',
+        data: [6500, 7200, 8100, 7600, 9300, 10200, 9800, 11000, 10500, 12300, 11800, 13500],
+        backgroundColor: 'rgba(255,92,0,0.75)',
+        borderColor: '#ff5c00',
+        borderWidth: 1,
+        borderRadius: 5,
+        borderSkipped: false,
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: { legend: { display: false } },
+      scales: {
+        x: { grid: { color: gridColor } },
+        y: { grid: { color: gridColor } }
+      },
+      animation: { duration: 1800, easing: 'easeOutQuart' }
+    }
+  });
+}
+
+// Line chart
+const lineCtx = document.getElementById('lineChart');
+if (lineCtx) {
+  new Chart(lineCtx, {
+    type: 'line',
+    data: {
+      labels: ['Jan','Fév','Mar','Avr','Mai','Juin','Juil','Août','Sep','Oct','Nov','Déc'],
+      datasets: [{
+        label: 'Utilisateurs',
+        data: [1200, 1900, 3000, 5000, 4200, 6800, 7400, 8900, 7600, 9800, 11200, 13800],
+        borderColor: '#4fc3f7',
+        backgroundColor: 'rgba(79,195,247,0.1)',
+        borderWidth: 2.5,
+        pointRadius: 3,
+        pointBackgroundColor: '#4fc3f7',
+        fill: true,
+        tension: 0.4,
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: { legend: { display: false } },
+      scales: {
+        x: { grid: { color: gridColor } },
+        y: { grid: { color: gridColor } }
+      },
+      animation: { duration: 2000, easing: 'easeOutCubic' }
+    }
+  });
+}
+
+// Doughnut
+const doughCtx = document.getElementById('doughnutChart');
+if (doughCtx) {
+  new Chart(doughCtx, {
+    type: 'doughnut',
+    data: {
+      labels: ['Électronique', 'Mode', 'Maison', 'Sports', 'Alimentation'],
+      datasets: [{
+        data: [32, 24, 18, 14, 12],
+        backgroundColor: ['#ff5c00','#1a3fff','#00b8a9','#ffd600','#7c3aed'],
+        borderWidth: 3,
+        borderColor: '#0f0e0b',
+        hoverBorderColor: '#0f0e0b',
+      }]
+    },
+    options: {
+      responsive: true,
+      cutout: '60%',
+      plugins: {
+        legend: {
+          position: 'right',
+          labels: { padding: 12, font: { size: 11 }, boxWidth: 10, borderRadius: 3 }
+        }
+      },
+      animation: { duration: 2000, easing: 'easeOutCirc' }
+    }
+  });
+}
+
+// Grouped bar
+const groupCtx = document.getElementById('groupedBar');
+if (groupCtx) {
+  new Chart(groupCtx, {
+    type: 'bar',
+    data: {
+      labels: ['T1','T2','T3','T4'],
+      datasets: [
+        {
+          label: '2023',
+          data: [28000, 35000, 42000, 38000],
+          backgroundColor: 'rgba(255,92,0,0.7)',
+          borderRadius: 4,
+          borderSkipped: false,
+        },
+        {
+          label: '2024',
+          data: [35000, 48000, 52000, 61000],
+          backgroundColor: 'rgba(0,184,169,0.7)',
+          borderRadius: 4,
+          borderSkipped: false,
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: { labels: { color: 'rgba(255,255,255,0.5)', padding: 12, font: { size: 11 } } }
+      },
+      scales: {
+        x: { grid: { color: gridColor } },
+        y: { grid: { color: gridColor } }
+      },
+      animation: { duration: 1600, easing: 'easeOutBounce' }
+    }
+  });
+}
+
+/* ====== SCROLL REVEAL ====== */
+const revealEls = document.querySelectorAll('.reveal');
+const obs = new IntersectionObserver((entries) => {
+  entries.forEach((e, i) => {
+    if (e.isIntersecting) {
+      setTimeout(() => e.target.classList.add('visible'), i * 60);
+      obs.unobserve(e.target);
+    }
+  });
+}, { threshold: 0.08 });
+revealEls.forEach(el => obs.observe(el));
+
+/* ====== TOOLS CATEGORY CLICK ====== */
+document.querySelectorAll('.tool-cat').forEach(cat => {
+  cat.addEventListener('click', () => {
+    document.querySelectorAll('.tool-cat').forEach(c => c.classList.remove('active'));
+    cat.classList.add('active');
+  });
+});
+</script>
+</body>
+</html>
